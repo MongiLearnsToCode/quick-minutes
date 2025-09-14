@@ -4,13 +4,19 @@ import Database from "better-sqlite3";
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
-console.log("Google OAuth Config:", {
-  clientId: googleClientId ? "Set" : "Not set",
-  clientSecret: googleClientSecret ? "Set" : "Not set",
+// Use /tmp directory for Vercel deployment
+const dbPath = process.env.VERCEL ? "/tmp/sqlite.db" : "./sqlite.db";
+
+console.log("Auth Config:", {
+  googleClientId: googleClientId ? "Set" : "Not set",
+  googleClientSecret: googleClientSecret ? "Set" : "Not set",
+  baseUrl: process.env.BETTER_AUTH_URL,
+  dbPath,
+  isVercel: !!process.env.VERCEL,
 });
 
 export const auth = betterAuth({
-  database: new Database("./sqlite.db"),
+  database: new Database(dbPath),
   emailAndPassword: {
     enabled: true,
   },
@@ -24,4 +30,5 @@ export const auth = betterAuth({
     "https://accounts.google.com",
     "https://oauth2.googleapis.com",
   ],
+  baseURL: process.env.BETTER_AUTH_URL,
 });
