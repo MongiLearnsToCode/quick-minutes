@@ -38,12 +38,6 @@ export const auth = betterAuth({
           google: {
             clientId: googleClientId,
             clientSecret: googleClientSecret,
-            // Add additional logging for debugging
-            fetchOptions: {
-              onError: (context) => {
-                console.error("Google OAuth Error:", context.error);
-              },
-            },
           },
         }
       : {},
