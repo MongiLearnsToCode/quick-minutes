@@ -38,6 +38,12 @@ export const auth = betterAuth({
           google: {
             clientId: googleClientId,
             clientSecret: googleClientSecret,
+            // Add additional logging for debugging
+            fetchOptions: {
+              onError: (context) => {
+                console.error("Google OAuth Error:", context.error);
+              },
+            },
           },
         }
       : {},
@@ -46,4 +52,16 @@ export const auth = betterAuth({
     "https://oauth2.googleapis.com",
   ],
   baseURL: baseURL,
+  // Add general error logging
+  logger: {
+    error: (message, ...args) => {
+      console.error("[Better Auth Error]", message, ...args);
+    },
+    info: (message, ...args) => {
+      console.info("[Better Auth Info]", message, ...args);
+    },
+    warn: (message, ...args) => {
+      console.warn("[Better Auth Warn]", message, ...args);
+    },
+  },
 });
