@@ -46,11 +46,8 @@ export const auth = betterAuth({
     "https://oauth2.googleapis.com",
   ],
   baseURL: baseURL,
-  // Add general error logging
+  // Add general logging
   logger: {
-    error: (message, ...args) => {
-      console.error("[Better Auth Error]", message, ...args);
-    },
     info: (message, ...args) => {
       console.info("[Better Auth Info]", message, ...args);
     },
