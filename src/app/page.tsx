@@ -1,7 +1,6 @@
 "use client";
 
-import { LoginForm } from "@/components/auth/login-form";
-import { SignupForm } from "@/components/auth/signup-form";
+import { UnifiedAuthForm } from "@/components/auth/unified-auth-form";
 import { UserProfile } from "@/components/auth/user-profile";
 import { authClient } from "@/lib/auth-client";
 
@@ -14,7 +13,7 @@ export default function Home() {
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-4">Quick Minutes</h1>
           <p className="text-lg text-muted-foreground">
-            Authentication demo with Better Auth
+            Secure authentication with Better Auth
           </p>
         </div>
 
@@ -23,13 +22,8 @@ export default function Home() {
             <UserProfile />
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="flex justify-center">
-              <LoginForm />
-            </div>
-            <div className="flex justify-center">
-              <SignupForm />
-            </div>
+          <div className="flex justify-center">
+            <UnifiedAuthForm />
           </div>
         )}
       </div>
