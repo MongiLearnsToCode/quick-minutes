@@ -39,11 +39,14 @@ export function SignupForm() {
 
   const handleGoogleSignup = async () => {
     try {
-      await authClient.signIn.social({
+      const result = await authClient.signIn.social({
         provider: "google",
+        callbackURL: window.location.origin,
       });
+      console.log("Google signup result:", result);
     } catch (err) {
       console.error("Google signup error:", err);
+      alert(`Google signup failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
   };
 

@@ -37,11 +37,14 @@ export function LoginForm() {
 
   const handleGoogleLogin = async () => {
     try {
-      await authClient.signIn.social({
+      const result = await authClient.signIn.social({
         provider: "google",
+        callbackURL: window.location.origin,
       });
+      console.log("Google login result:", result);
     } catch (err) {
       console.error("Google login error:", err);
+      alert(`Google login failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
   };
 
