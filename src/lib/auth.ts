@@ -1,4 +1,5 @@
 import { betterAuth } from "better-auth";
+import { Pool } from "pg";
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
@@ -18,8 +19,16 @@ console.log("Auth Config:", {
   isVercel: !!process.env.VERCEL,
 });
 
+// Create PostgreSQL connection pool
+const pool = databaseUrl
+  ? new Pool({
+      connectionString: databaseUrl,
+      ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
+    })
+  : null;
+
 export const auth = betterAuth({
-  database: databaseUrl,
+  database: pool,
   emailAndPassword: {
     enabled: true,
   },
