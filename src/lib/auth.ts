@@ -34,18 +34,12 @@ export const auth = betterAuth({
   },
   socialProviders:
     googleClientId && googleClientSecret
-      ? {
-          google: {
-            clientId: googleClientId,
-            clientSecret: googleClientSecret,
-            // Add additional logging for debugging
-            fetchOptions: {
-              onError: (context) => {
-                console.error("Google OAuth Error:", context.error);
-              },
+        ? {
+            google: {
+              clientId: googleClientId,
+              clientSecret: googleClientSecret,
             },
-          },
-        }
+          }
       : {},
   trustedOrigins: [
     "https://accounts.google.com",
