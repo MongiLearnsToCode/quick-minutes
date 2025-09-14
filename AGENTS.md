@@ -35,11 +35,14 @@
 To enable Google login, set up OAuth credentials in Google Cloud Console:
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Create a new project or select existing one
-3. Enable Google+ API
+3. Enable Google Identity Services API (not Google+ API)
 4. Create OAuth 2.0 credentials
-5. Add `http://localhost:3000/api/auth/callback/google` as authorized redirect URI
+5. Add the following authorized redirect URIs:
+   - `http://localhost:3000/api/auth/callback/google` (for local development)
+   - `https://yourdomain.com/api/auth/callback/google` (for production)
 6. Add credentials to `.env.local`:
    ```
    GOOGLE_CLIENT_ID=your_google_client_id
    GOOGLE_CLIENT_SECRET=your_google_client_secret
    ```
+7. For production deployment, update `BETTER_AUTH_URL` in `.env.local` to your production domain

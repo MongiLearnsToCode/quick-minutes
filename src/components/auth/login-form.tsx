@@ -39,12 +39,25 @@ export function LoginForm() {
     try {
       const result = await authClient.signIn.social({
         provider: "google",
-        callbackURL: window.location.origin,
+        callbackURL: "/", // Redirect to home page after successful login
       });
       console.log("Google login result:", result);
     } catch (err) {
       console.error("Google login error:", err);
-      alert(`Google login failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+
+      // Provide specific guidance for common errors
+      let userFriendlyMessage = `Google login failed: ${errorMessage}`;
+
+      if (errorMessage.includes('403') || errorMessage.includes('Forbidden')) {
+        userFriendlyMessage = `Google login failed: Invalid OAuth credentials.\n\nPlease:\n1. Check that your Google OAuth credentials in .env.local are valid\n2. Ensure you've set up OAuth in Google Cloud Console\n3. Verify the redirect URI is configured correctly`;
+      } else if (errorMessage.includes('500') || errorMessage.includes('Internal Server Error')) {
+        userFriendlyMessage = `Google login failed: Server configuration error.\n\nPlease:\n1. Run 'npx @better-auth/cli@latest generate' to create database schema\n2. Run 'npx @better-auth/cli@latest migrate' to apply the schema\n3. Restart your development server`;
+      } else if (errorMessage.includes('400') || errorMessage.includes('Bad Request')) {
+        userFriendlyMessage = `Google login failed: Configuration error.\n\nPlease check your OAuth setup and try again.`;
+      }
+
+      alert(`${userFriendlyMessage}\n\nCheck the browser console for more details.`);
     }
   };
 
