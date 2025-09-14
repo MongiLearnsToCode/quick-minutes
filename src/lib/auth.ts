@@ -1,5 +1,4 @@
 import { betterAuth } from "better-auth";
-import { Pool } from "pg";
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
@@ -19,17 +18,8 @@ console.log("Auth Config:", {
   isVercel: !!process.env.VERCEL,
 });
 
-// Create PostgreSQL connection pool
-const pool = databaseUrl
-  ? new Pool({
-      connectionString: databaseUrl,
-      // Neon requires SSL connection
-      ssl: { rejectUnauthorized: false },
-    })
-  : null;
-
 export const auth = betterAuth({
-  database: pool,
+  database: databaseUrl,
   emailAndPassword: {
     enabled: true,
   },
