@@ -12,9 +12,6 @@ export default function Home() {
       <div className="max-w-4xl w-full">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-4">Quick Minutes</h1>
-          <p className="text-lg text-muted-foreground">
-            Secure authentication with Better Auth
-          </p>
         </div>
 
         {session ? (
