@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, json } from "drizzle-orm/pg-core";
 
 export const users = pgTable("user", {
   id: text("id").primaryKey(),
@@ -44,4 +44,39 @@ export const verifications = pgTable("verification", {
   value: text("value").notNull(),
   expiresAt: timestamp("expiresAt", { withTimezone: true }).notNull(),
   identifier: text("identifier").notNull(),
+});
+
+export const meetings = pgTable("meeting", {
+    id: text("id").primaryKey(),
+    createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt", { withTimezone: true }).defaultNow().notNull(),
+    userId: text("userId").notNull().references(() => users.id),
+    title: text("title").notNull(),
+    audioFilePath: text("audioFilePath"),
+});
+
+export const transcripts = pgTable("transcript", {
+    id: text("id").primaryKey(),
+    createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt", { withTimezone: true }).defaultNow().notNull(),
+    meetingId: text("meetingId").notNull().references(() => meetings.id),
+    content: json("content"),
+});
+
+export const summaries = pgTable("summary", {
+    id: text("id").primaryKey(),
+    createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt", { withTimezone: true }).defaultNow().notNull(),
+    meetingId: text("meetingId").notNull().references(() => meetings.id),
+    content: text("content"),
+    actionItems: json("actionItems"),
+});
+
+export const payments = pgTable("payment", {
+    id: text("id").primaryKey(),
+    createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt", { withTimezone: true }).defaultNow().notNull(),
+    userId: text("userId").notNull().references(() => users.id),
+    subscriptionId: text("subscriptionId"),
+    status: text("status"),
 });
