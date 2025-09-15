@@ -1,20 +1,20 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useSearchParams } from 'next/navigation';
 
-interface Meeting {
-  id: string;
-  title: string;
+interface Segment {
+  speaker: string;
+  text: string;
 }
 
 interface Transcript {
-  content: any;
+  content: Segment[];
 }
 
-export default function TranscriptPage() {
+function TranscriptContent() {
   const searchParams = useSearchParams();
   const meetingId = searchParams.get('meetingId');
   const [transcript, setTranscript] = useState<Transcript | null>(null);
@@ -59,7 +59,7 @@ export default function TranscriptPage() {
           </div>
         </div>
         <div className="space-y-6 rounded-md border border-slate-200 bg-white p-6 shadow-sm">
-          {transcript.content.map((item: any, index: number) => (
+          {transcript.content.map((item: Segment, index: number) => (
             <div className="flex items-start gap-4" key={index}>
               <span
                 className={`flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-600`}
@@ -78,4 +78,12 @@ export default function TranscriptPage() {
       </div>
     </main>
   );
+}
+
+export default function TranscriptPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <TranscriptContent />
+    </Suspense>
+  )
 }

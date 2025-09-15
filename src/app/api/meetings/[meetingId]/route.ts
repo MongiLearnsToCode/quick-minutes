@@ -1,13 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { meetings, transcripts, summaries } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function GET(
-  request: Request,
-  { params }: { params: { meetingId: string } }
+  request: NextRequest,
+  context: { params: Promise<{ meetingId: string }> }
 ) {
-  const meetingId = params.meetingId;
+  const { meetingId } = await context.params;
 
   const [meeting] = await db
     .select()

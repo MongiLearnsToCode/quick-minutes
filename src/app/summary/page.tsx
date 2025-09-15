@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Share, FileText } from "lucide-react";
@@ -12,16 +12,12 @@ interface Meeting {
   createdAt: string;
 }
 
-interface Transcript {
-  content: string;
-}
-
 interface Summary {
   content: string;
-  actionItems: any;
+  actionItems: string[];
 }
 
-export default function SummaryPage() {
+function SummaryContent() {
   const searchParams = useSearchParams();
   const meetingId = searchParams.get('meetingId');
   const [meeting, setMeeting] = useState<Meeting | null>(null);
@@ -56,12 +52,8 @@ export default function SummaryPage() {
               {new Date(meeting.createdAt).toLocaleDateString()}
             </p>
           </div>
-          import jsPDF from "jspdf";
-
-// ... (existing code)
-
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => navigator.clipboard.writeText(summary?.content || "")}>
+            <Button variant="outline" onClick={() => navigator.clipboard.writeText(summary?.content || '')}>
               <Share className="mr-2 h-4 w-4" />
               Copy
             </Button>
@@ -79,17 +71,6 @@ export default function SummaryPage() {
             >
               <FileText className="mr-2 h-4 w-4" />
               TXT
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                const doc = new jsPDF();
-                doc.text(summary?.content || "", 10, 10);
-                doc.save(`${meeting?.title}-summary.pdf`);
-              }}
-            >
-              <FileText className="mr-2 h-4 w-4" />
-              PDF
             </Button>
           </div>
         </div>
@@ -114,7 +95,7 @@ export default function SummaryPage() {
                     Action Items
                   </h3>
                   <div className="mt-3 space-y-3">
-                    {summary.actionItems.map((item: any, index: number) => (
+                    {summary.actionItems.map((item: string, index: number) => (
                       <div className="flex items-start gap-3" key={index}>
                         <Checkbox id={`action-item-${index}`} />
                         <label
@@ -134,4 +115,12 @@ export default function SummaryPage() {
       </div>
     </main>
   );
+}
+
+export default function SummaryPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SummaryContent />
+    </Suspense>
+  )
 }
