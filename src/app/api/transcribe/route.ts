@@ -3,8 +3,8 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { meetings, transcripts } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import OpenAI from "openai";
 import { Readable } from "stream";
+import { v4 as uuidv4 } from "uuid";
 
 const s3Client = new S3Client({
   region: "auto",
@@ -13,10 +13,6 @@ const s3Client = new S3Client({
     accessKeyId: process.env.R2_ACCESS_KEY_ID!,
     secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
   },
-});
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
 });
 
 async function streamToBuffer(stream: Readable): Promise<Buffer> {
@@ -54,18 +50,28 @@ export async function POST(request: Request) {
 
     const audioBuffer = await streamToBuffer(Body as Readable);
 
-    const transcription = await openai.audio.transcriptions.create({
-      file: new File([audioBuffer], meeting.audioFilePath, { type: "audio/wav" }), // Assuming wav, adjust if needed
-      model: "whisper-1",
-      response_format: "verbose_json",
+    const formData = new FormData();
+    formData.append("file", new Blob([new Uint8Array(audioBuffer)]), meeting.audioFilePath);
+    formData.append("model", "whisper-1");
+    formData.append("response_format", "verbose_json");
+
+    const response = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: formData,
     });
 
-    const formattedTranscript = transcription.segments.map((segment: any) => ({
+    const transcription = await response.json();
+
+    const formattedTranscript = transcription.segments.map((segment: { speaker: string, text: string }) => ({
       speaker: segment.speaker,
       text: segment.text,
     }));
 
     await db.insert(transcripts).values({
+      id: uuidv4(),
       meetingId: meeting.id,
       content: JSON.stringify(formattedTranscript),
     });

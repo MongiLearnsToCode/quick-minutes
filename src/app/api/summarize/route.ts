@@ -2,11 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { transcripts, summaries } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import { v4 as uuidv4 } from "uuid";
 
 export async function POST(request: Request) {
   const { meetingId } = await request.json();
@@ -21,29 +17,38 @@ export async function POST(request: Request) {
   }
 
   try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a helpful assistant that summarizes meeting transcripts. Extract key points and action items.",
-        },
-        {
-          role: "user",
-          content: transcript.content as string,
-        },
-      ],
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a helpful assistant that summarizes meeting transcripts. Extract key points and action items.",
+          },
+          {
+            role: "user",
+            content: transcript.content as string,
+          },
+        ],
+      }),
     });
 
-    const summary = response.choices[0].message.content;
+    const data = await response.json();
+    const summary = data.choices[0].message.content;
 
     const actionItems = summary
       ?.split("\n")
-      .filter((line) => line.trim().startsWith("-") || line.trim().startsWith("*"))
-      .map((line) => line.trim().substring(1).trim());
+      .filter((line: string) => line.trim().startsWith("-") || line.trim().startsWith("*"))
+      .map((line: string) => line.trim().substring(1).trim());
 
     await db.insert(summaries).values({
+      id: uuidv4(),
       meetingId: meetingId,
       content: summary,
       actionItems: actionItems,
